@@ -440,7 +440,7 @@
             var margin = {
                     top: 20,
                     right: 60,
-                    bottom: 30,
+                    bottom: 60,
                     left: 60
                 },
                 width = 700 - margin.left - margin.right,
@@ -525,6 +525,25 @@
                 .attr("fill", "black")
                 .attr("text-anchor", "middle");
 
+            svgGarage.append('text')
+                .text('Count')
+                .attr('x', 300)
+                .attr('y', 250)
+                .attr("font-size", "16px")
+                .attr("font-weight", "bold")
+                .attr("fill", "black")
+                .attr("text-anchor", "middle");
+
+            svgGarage.append("text")
+                .text('Garage Quality')
+                .attr('x', 300)
+                .attr('y', 20)
+                .style("text-anchor", "middle")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 28)
+                .attr("font-weight", "bold")
+                .attr("fill", "black");
+
             // set the ranges - HEATING
             var y_heat = d3.scaleBand()
                 .range([height, 0])
@@ -599,6 +618,25 @@
                 .attr("font-weight", "bold")
                 .attr("fill", "black")
                 .attr("text-anchor", "middle");
+
+            svgHeat.append('text')
+                .text('Count')
+                .attr('x', 300)
+                .attr('y', 250)
+                .attr("font-size", "16px")
+                .attr("font-weight", "bold")
+                .attr("fill", "black")
+                .attr("text-anchor", "middle");
+
+            svgHeat.append("text")
+                .text('Heat Quality')
+                .attr('x', 300)
+                .attr('y', 20)
+                .style("text-anchor", "middle")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 28)
+                .attr("font-weight", "bold")
+                .attr("fill", "black");
 
             // select neighbor functions
             d3.select("#selectNeighborBubbleBar").on("change", function(d) {
@@ -1015,6 +1053,25 @@
                     .attr("fill", "black")
                     .attr("text-anchor", "middle");
 
+                svgGarage.append('text')
+                    .text('Count')
+                    .attr('x', 300)
+                    .attr('y', 250)
+                    .attr("font-size", "16px")
+                    .attr("font-weight", "bold")
+                    .attr("fill", "black")
+                    .attr("text-anchor", "middle");
+
+                svgGarage.append("text")
+                    .text('Heat Quality')
+                    .attr('x', 300)
+                    .attr('y', 20)
+                    .style("text-anchor", "middle")
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", 28)
+                    .attr("font-weight", "bold")
+                    .attr("fill", "black");
+
                 // set the ranges - HEATING
                 var y_heat = d3.scaleBand()
                     .range([height, 0])
@@ -1093,6 +1150,26 @@
                     .attr("font-weight", "bold")
                     .attr("fill", "black")
                     .attr("text-anchor", "middle");
+
+                svgHeat.append('text')
+                    .text('Count')
+                    .attr('x', 300)
+                    .attr('y', 250)
+                    .attr("font-size", "16px")
+                    .attr("font-weight", "bold")
+                    .attr("fill", "black")
+                    .attr("text-anchor", "middle");
+
+                svgHeat.append("text")
+                    .text('Heat Quality')
+                    .attr('x', 300)
+                    .attr('y', 20)
+                    .style("text-anchor", "middle")
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", 28)
+                    .attr("font-weight", "bold")
+                    .attr("fill", "black");
+
             }
 
             function mouseoverBubble() {
@@ -1164,7 +1241,7 @@
         }
 
         d3.csv("train.csv", rowConverter).then(function(data) {
-            d3.json("us-states.json").then(function(json) {
+            d3.json("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/us-states.json").then(function(json) {
 
                 neighborhood_list = d3.map(data, function(d) {
                     return d.Neighborhood;
