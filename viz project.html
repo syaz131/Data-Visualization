@@ -107,37 +107,47 @@
         </defs>        
     </svg>
 
-    <div id="viz-map">
-        <h2>Map plot</h2>
-    </div>
-    <!-- <div>abc123</div> -->
 
-    <div id="viz-scatter">
-        <h2>Scatter plot</h2>
-        <select id="selectNeighborScatter">
+
+    <div>
+        <div id="viz-map">
+            <h2>Map plot</h2>
+        </div>
+
+        <div id="viz-scatter">
+            <h2>Scatter plot</h2>
+            <select id="selectNeighborScatter">
             <option value="all">All Neighborhood</option>
         </select>
-        <br/>
+        </div>
     </div>
 
-    <br/>
+    <div>add comment here</div>
+
+
     <h2>Bubble and Bar plot</h2>
     <select id="selectNeighborBubbleBar">
         <option value="all">All Neighborhood</option>
     </select>
+
+    <div>
+        <h2>Garage</h2>
+        <div id="viz-bubble-garage"></div>
+        <div id="viz-bar-garage"></div>
+    </div>
+
+    <div>
+        <h2>Heating</h2>
+        <div id="viz-bubble-heat"></div>
+        <div id="viz-bar-heat"></div>
+    </div>
     <br/>
 
-    <h2>Garage Type and Quality</h2>
-    <br/>
-    <div id="viz-bubble-garage"></div>
-    <div id="viz-bar-garage"></div>
-    <br style="width: 100%;" />
+    <!-- <h2>hi</h2> -->
+    <div style="color: white;">-</div>
 
-    <h2>Heating Type and Quality</h2>
-    <br/>
-    <div id="viz-bubble-heat"></div>
-    <div id="viz-bar-heat"></div>
-    <br/>
+    <div>add comment here</div>
+
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
@@ -486,8 +496,6 @@
                     return x_garage(d.GarageQCCount);
                 })
                 .attr("y", function(d) {
-                    console.log('yJadi')
-                    console.log(y_garage(d.GarageQC))
                     return y_garage(d.GarageQC);
                 })
                 .attr("height", y_garage.bandwidth());
