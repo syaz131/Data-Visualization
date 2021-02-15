@@ -338,8 +338,6 @@
                 .attr("fill", "black")
                 .text('Garage Type');
 
-
-
             nodeGarage.append("text")
                 .attr("dy", ".2em")
                 .style("text-anchor", "middle")
@@ -544,6 +542,16 @@
                 .attr("fill", "black")
                 .attr("text-anchor", "middle");
 
+            svgGarage.append("rect")
+                .attr("fill", 'whitesmoke')
+                .attr("height", 36)
+                .attr("width", 220)
+                .attr("x", 190)
+                .attr("y", -7)
+                .attr("rx", 20)
+                .attr("ry", 20)
+                .attr("opacity", 0.85)
+
             svgGarage.append("text")
                 .text('Garage Quality')
                 .attr('x', 300)
@@ -637,6 +645,16 @@
                 .attr("font-weight", "bold")
                 .attr("fill", "black")
                 .attr("text-anchor", "middle");
+
+            svgHeat.append("rect")
+                .attr("fill", 'whitesmoke')
+                .attr("height", 36)
+                .attr("width", 200)
+                .attr("x", 200)
+                .attr("y", -7)
+                .attr("rx", 20)
+                .attr("ry", 20)
+                .attr("opacity", 0.85)
 
             svgHeat.append("text")
                 .text('Heat Quality')
@@ -1073,7 +1091,7 @@
                     .attr("text-anchor", "middle");
 
                 svgGarage.append("text")
-                    .text('Heat Quality')
+                    .text('Garage Quality')
                     .attr('x', 300)
                     .attr('y', 20)
                     .style("text-anchor", "middle")
