@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+#viz-map {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+#viz-scatter {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+#viz-bubble-garage {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+#viz-bubble-heat {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+#viz-bar-garage {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+#viz-bar-heat {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    height: 50px;
+    padding: 4px;
+    font: 13px sans-serif;
+    background: whitesmoke;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.labels {
+    font-size: 11px;
+}
+
+select {
+    width: 200px;
+    height: 30px;
+    font-size: 14px;
+    ;
+}
+
+.regression {
+    stroke-width: 2px;
+    stroke: steelblue;
+    stroke-dasharray: 10, 5;
+}
+
+circle.bubble {
+    stroke: white;
+    pointer-events: all;
+    transition: 0.3s;
+}
+
+circle.bubble:hover {
+    stroke-opacity: 1;
+    stroke-width: 2pt;
+    stroke: gray;
+}
