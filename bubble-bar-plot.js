@@ -1,696 +1,1065 @@
-neighborhood_list = []
-avg_price_list = []
-avg_area_list = []
-neigh_obj_data = new Array()
-
-aa_arr = [
-    [-76.4849607, 38.9867785], //CollgCr
-    [-119.958099, 36.255299], //Veenker
-    [-83.030563, 42.706703], //Crawfor
-    [-75.826103, 43.212502], //NoRidge
-    [-92.957463, 45.055285], //Mitchel
-    //5
-    [-84.60461, 37.092109], //Somerst
-    [-87.856097, 42.319405], //NWAmes
-    [-68.645763, 44.934787], //OldTown
-    [-118.165794, 34.153351], //BrkSide
-    [-78.845001, 43.064701], //Sawyer
-    //10
-    [-71.079275, 42.573995], //NridgHt
-    [-90.048646, 38.21237], //NAmes
-    [-82.538602, 27.336483], //SawyerW
-    [-80.81432, 33.585601], //IDOTRR
-    [-74.235603, 40.86859], //MeadowV
-    //15
-    [-106.5942, 39.6450], //Edwards
-    [-72.492105, 43.889786], //Timber
-    [-111.801682, 33.360355], //Gilbert
-    [-84.0569, 35.950802], //StoneBr
-    [-104.56, 39.49], //ClearCr
-    //20
-    [-95.648949, 36.339039], //NPkVill
-    [-89.033, 40.4806], //Blmngtn
-    [-81.46286, 41.344753], //BrDale
-    [-93.6465, 42.0267], //SWISU
-    [-118.125603, 47.525002] //Blueste
-    //25
-]
-
 rowConverter = function(d) {
     return {
         Neighborhood: d.Neighborhood,
-        SalePrice: parseFloat(d.SalePrice),
-        LotArea: parseFloat(d.LotArea)
+        GarageType: d.GarageType,
+        HeatingType: d.Heating,
+        GarageQC: d.GarageQual,
+        HeatQC: d.HeatingQC
+
     }
 }
 
 d3.csv("train.csv", rowConverter).then(function(data) {
-    d3.json("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/us-states.json").then(function(json) {
 
-        neighborhood_list = d3.map(data, function(d) {
-            return d.Neighborhood;
-        }).keys();
 
-        for (i = 0; i < neighborhood_list.length; i++) {
-            average_price = d3.mean(data.filter(d => d.Neighborhood === neighborhood_list[i]), d => d.SalePrice)
-            average_area = d3.mean(data.filter(d => d.Neighborhood === neighborhood_list[i]), d => d.LotArea)
+    var neighborhood_list = d3.map(data, function(d) {
+        return d.Neighborhood;
+    }).keys();
 
-            // assign 2 coordinates - dont know why
-            coordinate = aa_arr[i];
-            // coordinate2 = bb_arr[i];
+    var garage_list = d3.map(data, function(d) {
+        return d.GarageType;
+    }).keys();
 
-            var neigh_object = {
-                Avg_price: average_price,
-                Avg_area: average_area,
-                Neighborhood: neighborhood_list[i],
-                Coordinate: coordinate
-            }
+    var heating_list = d3.map(data, function(d) {
+        return d.HeatingType;
+    }).keys();
 
-            neigh_obj_data.push(neigh_object);
+    /////////////////// Select neighborhood //////////////////
+    d3.select("#selectNeighborBubbleBar")
+        .selectAll('myNeighbor')
+        .data(neighborhood_list)
+        .enter()
+        .append('option')
+        .text(function(d) {
+            return d;
+        })
+        .attr("value", function(d) {
+            return d;
+        });
+    /////////////////// Select neighborhood //////////////////
+
+
+
+    var garage_data = new Array();
+    var heating_data = new Array();
+
+    garage_list.forEach(garage => {
+        count = 0;
+        for (i = 0; i < data.length; i++) {
+            if (data[i].GarageType === garage)
+                count += 1
         }
 
-        // Define the div for the tooltip
-        var div = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        var garage_obj = {
+            GarageType: garage,
+            GarageCount: count,
+        }
 
-        var areaMin = d3.min(neigh_obj_data, function(d) {
-            return d.Avg_area;
+        garage_data.push(garage_obj)
+    });
+
+
+    garage_data = {
+        "children": garage_data
+    }
+
+
+    heating_list.forEach(heating => {
+        count = 0;
+        for (i = 0; i < data.length; i++) {
+            if (data[i].HeatingType === heating)
+                count += 1
+        }
+
+        var heat_obj = {
+            HeatingType: heating,
+            HeatingCount: count,
+        }
+
+        heating_data.push(heat_obj)
+    });
+
+    heating_data = {
+        "children": heating_data
+    }
+
+    var diameter = 300;
+    var colorBar = d3.scaleOrdinal(d3.schemeSet2);
+    var colorBubble = d3.scaleOrdinal(d3.schemeAccent);
+
+    // garage variables
+
+    var bubbleGarage = d3.pack(garage_data)
+        .size([diameter, diameter])
+        .padding(1.5);
+
+    var svgBubbleGarage = d3.select("#viz-bubble-garage")
+        .append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+
+    var nodesGarage = d3.hierarchy(garage_data)
+        .sum(function(d) {
+            return d.GarageCount;
         });
 
-        var areaMax = d3.max(neigh_obj_data, function(d) {
-            return d.Avg_area;
+    var nodeGarage = svgBubbleGarage.selectAll(".node")
+        .data(bubbleGarage(nodesGarage).descendants())
+        .enter()
+        .filter(function(d) {
+            return !d.children
+        })
+        .append("g")
+        .attr("class", "node")
+        .attr("opacity", 1)
+        .attr("font-weight", "bold")
+        .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        })
+        .on("mouseover", mouseoverBubble)
+        .on("mouseout", mouseoutBubble);
+
+    // heating variables
+
+    var bubbleHeat = d3.pack(heating_data)
+        .size([diameter, diameter])
+        .padding(1.5);
+
+    var svgBubbleHeat = d3.select("#viz-bubble-heat")
+        .append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+
+    var nodesHeat = d3.hierarchy(heating_data)
+        .sum(function(d) {
+            return d.HeatingCount;
         });
 
-        var rScale = d3.scaleSqrt()
-            .domain([0, areaMax])
-            .range([2, 15]);
+    var nodeHeat = svgBubbleHeat.selectAll(".node")
+        .data(bubbleHeat(nodesHeat).descendants())
+        .enter()
+        .filter(function(d) {
+            return !d.children
+        })
+        .append("g")
+        .attr("class", "node")
+        .attr("opacity", 1)
+        .attr("font-weight", "bold")
+        .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        })
+        .on("mouseover", mouseoverBubble)
+        .on("mouseout", mouseoutBubble);
 
-        var priceMin = d3.min(neigh_obj_data, function(d) {
-            return d.Avg_price;
+    // garage nodes
+    nodeGarage.append("circle")
+        .attr("class", "bubble")
+        .attr("r", function(d) {
+            return d.r;
+        })
+        .style("fill", function(d, i) {
+            return colorBubble(i);
         });
 
-        var priceMax = d3.max(neigh_obj_data, function(d) {
-            return d.Avg_price;
+    svgBubbleGarage.append("rect")
+        .attr("fill", 'whitesmoke')
+        .attr("height", 36)
+        .attr("width", 200)
+        .attr("x", 20)
+        .attr("y", 10)
+        .attr("rx", 20)
+        .attr("ry", 20)
+        .attr("opacity", 0.85)
+
+    svgBubbleGarage.append("text")
+        .attr("dy", ".2em")
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 28)
+        .attr("font-weight", "bold")
+        .attr("transform", "translate(" + 120 + ", " + 30 + ")")
+        .attr("fill", "black")
+        .text('Garage Type');
+
+    nodeGarage.append("text")
+        .attr("dy", ".2em")
+        .style("text-anchor", "middle")
+        .text(function(d) {
+            return d.data.GarageType;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("fill", "black");
+
+    nodeGarage.append("text")
+        .attr("dy", "1.3em")
+        .style("text-anchor", "middle")
+        .text(function(d) {
+            return d.data.GarageCount;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("fill", "black");
+
+    // heating nodes
+    nodeHeat.append("circle")
+        .attr("class", "bubble")
+        .attr("r", function(d) {
+            return d.r;
+        })
+        .style("fill", function(d, i) {
+            return colorBubble(i);
         });
 
-        var colorRange = d3.scaleLinear()
-            .domain([priceMin, priceMax])
-            .range([d3.rgb("#fee6ce"), d3.rgb('#d94801 ')]);
+    svgBubbleHeat.append("rect")
+        .attr("fill", 'whitesmoke')
+        .attr("height", 36)
+        .attr("width", 200)
+        .attr("x", 20)
+        .attr("y", 10)
+        .attr("rx", 20)
+        .attr("ry", 20)
+        .attr("opacity", 0.85)
 
-        ////////// map plot ////////////////////////
-        var width = 750
-        var height = 550
+    svgBubbleHeat.append("text")
+        .attr("dy", ".2em")
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 28)
+        .attr("font-weight", "bold")
+        .attr("transform", "translate(" + 120 + ", " + 30 + ")")
+        .attr("fill", "black")
+        .text('Heating Type');
 
-        //svgMap
-        let svgMap = d3.select("#viz-map")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
+    nodeHeat.append("text")
+        .attr("dy", ".2em")
+        .style("text-anchor", "middle")
+        .text(function(d) {
+            return d.data.HeatingType;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("fill", "black");
 
-        // D3 Projection
-        var projection = d3.geoAlbersUsa()
-            .translate([width / 2, height / 2]) // translate to center of screen
-            .scale([900]);
+    nodeHeat.append("text")
+        .attr("dy", "1.3em")
+        .style("text-anchor", "middle")
+        .text(function(d) {
+            return d.data.HeatingCount;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("fill", "black");
 
-        // Define path generator
-        var geoPath = d3.geoPath() // path generator that will convert GeoJSON to SVG paths
-            .projection(projection); // tell path generator to use albersUsa projection
+    //garage qc list
+    garageqc_list = d3.map(data, function(d) {
+        return d.GarageQC;
+    }).keys();
 
-        svgMap.selectAll("path")
-            .data(json.features)
-            .enter()
-            .append("path")
-            .attr("d", geoPath)
-            .style("stroke", "#fff")
-            .style("stroke-width", "1")
-            .style("fill", "rgb(213,222,217)");
+    //heat qc list
+    heatqc_list = d3.map(data, function(d) {
+        return d.HeatQC;
+    }).keys();
 
-        svgMap.selectAll("circle")
-            .data(neigh_obj_data)
-            .enter()
-            .append("circle")
-            .attr("stroke", "white")
-            .attr("stroke-width", 2)
-            .attr("cx", function(d) {
-                return projection(d.Coordinate)[0];
-            })
-            .attr("cy", function(d) {
-                return projection(d.Coordinate)[1];
-            })
-            //start change here
-            .attr("r", function(d) {
-                return rScale(d.Avg_area);
-            })
-            .attr("fill", function(d) {
-                value = d.Avg_price
-                if (value)
-                    return colorRange(d.Avg_price);
-                else
-                    return colorRange(priceMin)
-            })
-            .attr("opacity", 0.8)
-            .on("mouseover", function(d) {
-                div.transition()
-                    .duration(300)
-                    .style("opacity", .95);
-                div.html("<b>" + d.Neighborhood + "</b><br/>" + 'Avg. Area : ' + parseInt(d.Avg_area) + " sq ft" + "<br/>" + 'Avg. Sale Price : $' + parseInt(d.Avg_price))
-                    .style("left", (d3.event.pageX + 20) + "px")
-                    .style("top", (d3.event.pageY - 60) + "px");
-                d3.select(this)
-                    .transition()
-                    .duration(300)
-                    .attr('stroke', 'black')
-                    .attr('opacity', 1);
-            })
-            .on("mouseout", function(d) {
-                div.transition()
-                    .duration(200)
-                    .style("opacity", 0);
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .attr("stroke", "white")
-                    .attr("stroke-width", 2)
-                    .attr('opacity', 0.8);
-            });
+    var garageQC_data = new Array();
 
-        var x = 620
-        var y = 320
-        var radius = [5, 10, 15]
-        var areaMinMax = [areaMin, areaMax]
-        var size = 34
+    garageqc_list.forEach(garageqc => {
+        count = 0;
+        for (i = 0; i < data.length; i++) {
+            if (data[i].GarageQC === garageqc)
+                count += 1
+        }
 
-        /////// color and size legend /////////
-        //rect - background
-        svgMap.append("rect")
-            .attr("fill", 'whitesmoke') //whitesmoke
-            .attr("opacity", 0.7)
-            .attr("width", 140)
-            .attr("height", 190)
-            .attr("rx", 8)
-            .attr("ry", 8)
-            .attr("x", x - 10)
-            .attr("y", y - 30)
-            .text("Lot Area (sq ft)");
+        var garage_obj = {
+            GarageQC: garageqc,
+            GarageQCCount: count,
+        }
+        garageQC_data.push(garage_obj)
+    });
 
-        //color
-        svgMap.append("rect")
-            .attr("x", x)
-            .attr("y", y)
-            .attr("width", 120)
-            .attr("height", 20)
-            .attr("opacity", 1)
-            .attr("fill", "url(#grad1)")
+    var heatQC_data = new Array();
 
-        // text for neighborhood name
-        svgMap.selectAll("neighborhood-name")
-            .data(neigh_obj_data)
-            .enter()
-            .append("text")
-            .attr("font-size", 12)
-            .attr("x", function(d) {
-                return projection(d.Coordinate)[0] - 20;
-            })
-            .attr("y", function(d) {
-                return projection(d.Coordinate)[1] + 20;
-            })
-            .text(function(d) {
-                return d.Neighborhood;
-            });
+    heatqc_list.forEach(heatqc => {
+        count = 0;
+        for (i = 0; i < data.length; i++) {
+            if (data[i].HeatQC === heatqc)
+                count += 1
+        }
 
-        svgMap.append("text")
-            .attr("font-size", 12)
-            .attr('font-weight', 'bold')
-            .attr("x", x + 5)
-            .attr("y", y - 7)
-            .text("Sale Price ($)");
+        var heat_obj = {
+            HeatQC: heatqc,
+            HeatQCCount: count,
+        }
+        heatQC_data.push(heat_obj)
+    });
 
-        svgMap.append("text")
-            .attr("font-size", 12)
-            .attr('font-weight', 'bold')
-            .attr("x", x + 5)
-            .attr("y", y + 34)
-            .text(parseInt(priceMin));
+    // Height bar chart and width bar chart
+    var margin = {
+            top: 20,
+            right: 60,
+            bottom: 60,
+            left: 60
+        },
+        width = 700 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
-        svgMap.append("text")
-            .attr("font-size", 12)
-            .attr('font-weight', 'bold')
-            .attr("x", x + 78)
-            .attr("y", y + 34)
-            .text(parseInt(priceMax));
+    // set the ranges
+    var y_garage = d3.scaleBand()
+        .range([height, 0])
+        .padding(0.1);
 
-        // size
-        svgMap.append("text")
-            .attr("font-size", 12)
-            .attr('font-weight', 'bold')
-            .attr("x", x + 5)
-            .attr("y", y + 78)
-            .text("Lot Area (sq ft)");
+    var x_garage = d3.scaleLinear()
+        .range([0, width]);
 
-        svgMap.selectAll("myRadius")
-            .data(radius)
-            .enter()
-            .append('circle')
-            .attr('cx', function(d, i) {
-                return x + i * (size + 7) + (size / 2)
-            })
-            .attr('cy', y + 103)
-            .attr('r', function(d) {
+    // console.log(garageQC_data)
+    // console.log(heatQC_data)
+
+    var svgGarage = d3.select("#viz-bar-garage")
+        .append("svg")
+        .attr("class", "bar")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    x_garage.domain([0, d3.max(garageQC_data, function(d) {
+        return d.GarageQCCount;
+    })])
+    y_garage.domain(garageQC_data.map(function(d) {
+        return d.GarageQC;
+    }));
+
+    svgGarage.selectAll(".bar")
+        .data(garageQC_data)
+        .enter()
+        .append("rect")
+        .style("fill", function(d, i) {
+            return colorBar(i);
+        })
+        .attr("width", function(d) {
+            return x_garage(d.GarageQCCount);
+        })
+        .attr("y", function(d) {
+            return y_garage(d.GarageQC);
+        })
+        .attr("height", y_garage.bandwidth());
+
+    // add the x Axis
+    xAxisGarage = d3.axisBottom(x_garage);
+    xAxisGarage.ticks(3);
+    svgGarage.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisGarage)
+
+    // add the y Axis
+    yAxisGarage = d3.axisLeft(y_garage);
+    svgGarage.append("g")
+        .call(yAxisGarage)
+        .call(g => g.selectAll(".tick text").attr("font-weight", "bold"))
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove());
+
+    svgGarage.selectAll("barLabel")
+        .data(garageQC_data)
+        .enter()
+        .append("text")
+        .text(function(d) {
+            return d.GarageQCCount;
+        })
+        .attr("y", function(d, i) {
+            return y_garage(d.GarageQC) + 5 + y_garage.bandwidth() / 2;
+            // return y_garage(d.GarageQCCount) + y_garage.bandwidth() / 2;
+        })
+        .attr("x", function(d) {
+            return x_garage(d.GarageQCCount) + 20;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle");
+
+    svgGarage.append('text')
+        .text('Count')
+        .attr('x', 300)
+        .attr('y', 250)
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle");
+
+    svgGarage.append("rect")
+        .attr("fill", 'whitesmoke')
+        .attr("height", 36)
+        .attr("width", 220)
+        .attr("x", 190)
+        .attr("y", -7)
+        .attr("rx", 20)
+        .attr("ry", 20)
+        .attr("opacity", 0.85)
+
+    svgGarage.append("text")
+        .text('Garage Quality')
+        .attr('x', 300)
+        .attr('y', 20)
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 28)
+        .attr("font-weight", "bold")
+        .attr("fill", "black");
+
+    // set the ranges - HEATING
+    var y_heat = d3.scaleBand()
+        .range([height, 0])
+        .padding(0.1);
+
+    var x_heat = d3.scaleLinear()
+        .range([0, width]);
+
+    var svgHeat = d3.select("#viz-bar-heat")
+        .append("svg")
+        .attr("class", "bar")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    x_heat.domain([0, d3.max(heatQC_data, function(d) {
+        return d.HeatQCCount;
+    })])
+    y_heat.domain(heatQC_data.map(function(d) {
+        return d.HeatQC;
+    }));
+
+    svgHeat.selectAll(".bar")
+        .data(heatQC_data)
+        .enter()
+        .append("rect")
+        .style("fill", function(d, i) {
+            return colorBar(i);
+        })
+        .attr("width", function(d) {
+            return x_heat(d.HeatQCCount);
+        })
+        .attr("y", function(d) {
+            return y_heat(d.HeatQC);
+        })
+        .attr("height", y_heat.bandwidth());
+
+    // add the x Axis
+    xAxisHeat = d3.axisBottom(x_garage);
+    xAxisHeat.ticks(3);
+    svgHeat.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisHeat)
+
+    // add the y Axis
+    yAxisHeat = d3.axisLeft(y_garage);
+    svgHeat.append("g")
+        .call(yAxisHeat)
+        .call(g => g.selectAll(".tick text").attr("font-weight", "bold"))
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove());
+
+
+    svgHeat.selectAll("barLabel")
+        .data(heatQC_data)
+        .enter()
+        .append("text")
+        .text(function(d) {
+            return d.HeatQCCount;
+        })
+        .attr("y", function(d, i) {
+            return y_heat(d.HeatQC) + 5 + y_heat.bandwidth() / 2;
+            // return y_garage(d.GarageQCCount) + y_garage.bandwidth() / 2;
+        })
+        .attr("x", function(d) {
+            return x_heat(d.HeatQCCount) + 20;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle");
+
+    svgHeat.append('text')
+        .text('Count')
+        .attr('x', 300)
+        .attr('y', 250)
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle");
+
+    svgHeat.append("rect")
+        .attr("fill", 'whitesmoke')
+        .attr("height", 36)
+        .attr("width", 200)
+        .attr("x", 200)
+        .attr("y", -7)
+        .attr("rx", 20)
+        .attr("ry", 20)
+        .attr("opacity", 0.85)
+
+    svgHeat.append("text")
+        .text('Heat Quality')
+        .attr('x', 300)
+        .attr('y', 20)
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 28)
+        .attr("font-weight", "bold")
+        .attr("fill", "black");
+
+    // select neighbor functions
+    d3.select("#selectNeighborBubbleBar").on("change", function(d) {
+        var selectedOption = d3.select(this).property("value")
+        updateBubbleBar(selectedOption)
+    })
+
+    // update scatter plot function
+    function updateBubbleBar(selectedGroup) {
+        // garage neighborhood data
+        var garage_dataFilter = data.map(function(d) {
+            if (d.Neighborhood === selectedGroup)
+                return {
+                    Neighborhood: d.Neighborhood,
+                    GarageType: d.GarageType
+                }
+            if (selectedGroup === "all")
                 return d;
-            })
-            .attr('fill', "lightgray")
-            .attr('opacity', 1)
-            .attr('stroke', 'black')
-            .text(function(d) {
-                return d
-            });
-
-        svgMap.selectAll("myLabel")
-            .data(areaMinMax)
-            .enter()
-            .append("text")
-            .attr("x", function(d, i) {
-                return x + 5 + i * 80
-            })
-            .attr("y", y + 134)
-            .attr("font-size", 12)
-            .attr("text-anchor", "left")
-            .attr('font-weight', 'bold')
-            .style("alignment-baseline", "middle")
-            .text(function(d) {
-                return parseInt(d);
-            });
-        /////// color and size legend /////////
-        ///////////////////////////////////////
-        ///////////////////////////////////////
-        ///////////////////////////////////////
-        ////////// scatter plot ///////////////
-        var width = 750,
-            height = 550;
-
-        var padding = 80;
-
-        var svgScatter = d3.select("#viz-scatter")
-            .append("svg")
-            .attr('class', 'axis')
-            .attr('width', width)
-            .attr('height', height);
-
-        var priceMin = d3.min(data, function(d) {
-            return d.SalePrice;
-        });
-        var priceMax = d3.max(data, function(d) {
-            return d.SalePrice;
-        });
-
-        var areaMin = d3.min(data, function(d) {
-            return d.LotArea;
-        });
-        var areaMax = d3.max(data, function(d) {
-            return d.LotArea;
-        });
-
-        var areaScale = d3.scaleLinear()
-            .domain([areaMin - 2000, areaMax + 1000])
-            .range([padding, width - padding]);
-
-        var priceScale = d3.scaleLinear()
-            .domain([priceMin - 6000, priceMax + 1000])
-            .range([height - padding, padding]);
-
-
-        var colorPalette = d3.scaleOrdinal(["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f",
-            "#ff7f00", "#cab2d6", "#6a3d9a", "#7570b3", "#b15928", "#8dd3c7", "#666666", "#bebada", "#fb8072", "#80b1d3",
-            "#1b9e77", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f", "#e7298a", "#e6ab02"
-        ]);
-
-        neighbor = d3.map(data, function(d) {
-            return d.Neighborhood;
-        }).keys();
-
-        colorPalette.domain(neighbor);
-
-
-
-
-        //////// start draw circle //////////////
-        svgScatter.selectAll('circle')
-            .data(data)
-            .enter()
-            .append('circle')
-            .attr('cx', function(d) {
-                return areaScale(d.LotArea);
-            })
-            .attr('cy', function(d) {
-                return priceScale(d.SalePrice)
-            })
-            .attr('r', 3)
-            .attr('fill', function(d) {
-                return colorPalette(d.Neighborhood);
-            })
-            .attr('opacity', 0.8)
-            .on("mouseover", function(d) {
-                div.transition()
-                    .duration(100)
-                    .style("opacity", 1);
-                div.html("<b>" + d.Neighborhood + "</b><br/>" + 'Avg. Area : ' + parseInt(d.LotArea) + " sq ft" + "<br/>" + 'Avg. Sale Price : $' + parseInt(d.SalePrice))
-                    .style("left", (d3.event.pageX + 5) + "px")
-                    .style("top", (d3.event.pageY - 50) + "px");
-                d3.select(this)
-                    .attr('stroke', 'black')
-                    .attr('opacity', 1);
-            })
-            .on("mouseout", function(d) {
-                div.transition()
-                    .duration(100)
-                    .style("opacity", 0);
-                d3.select(this)
-                    .attr('stroke', 'none')
-                    .attr('opacity', 0.8);
-            });
-
-        // Draw the axis
-        var xAxis = d3.axisBottom()
-            .scale(areaScale)
-
-        var yAxis = d3.axisLeft()
-            .scale(priceScale)
-
-        svgScatter.append('g')
-            .attr('class', 'axis x-axis')
-            .attr("transform", "translate(0," + (height - padding) + ")")
-            .call(xAxis)
-
-        svgScatter.append('g')
-            .attr('class', 'axis y-axis')
-            .attr("transform", "translate(" + padding + ",0)")
-            .call(yAxis);
-        ////////// end draw circle //////////////
-
-
-        /////////////////// Select neighborhood //////////////////
-        d3.select("#selectNeighborScatter")
-            .selectAll('myNeighbor')
-            .data(neighbor)
-            .enter()
-            .append('option')
-            .text(function(d) {
-                return d;
-            })
-            .attr("value", function(d) {
-                return d;
-            });
-        /////////////////// Select neighborhood //////////////////
-
-
-
-
-        /////// Draw regression line /////////////////////
-        var lg = calcLinear(data, "LotArea", "SalePrice", d3.min(data, function(d) {
-                return d.LotArea
-            }),
-            d3.max(data, function(d) {
-                return d.LotArea
-            }));
-
-        svgScatter.append("line")
-            .attr("class", "regression")
-            .attr("x1", areaScale(lg.ptA.x))
-            .attr("y1", priceScale(lg.ptA.y))
-            .attr("x2", areaScale(lg.ptB.x))
-            .attr("y2", priceScale(lg.ptB.y));
-        /////// Draw regression line /////////////////////
-
-
-
-        ///////// start label ////////////
-        var size = 10
-        var xLabels = 600
-        var yLabels = 40
-
-        svgScatter.selectAll("mydots")
-            .data(neighbor)
-            .enter()
-            .append("rect")
-            .attr("x", xLabels - 5)
-            .attr("y", function(d, i) {
-                return yLabels + i * (size + 7)
-            })
-            .attr("width", size)
-            .attr("height", size)
-            .attr('opacity', 1)
-            .style("fill", function(d) {
-                return colorPalette(d)
-            })
-
-        svgScatter.selectAll("mylabels")
-            .data(neighbor)
-            .enter()
-            .append("text")
-            .attr("x", xLabels + size * 1)
-            .attr("y", function(d, i) {
-                return yLabels + i * (size + 7) + (size / 2)
-            })
-            .style("fill", function(d) {
-                return colorPalette(d)
-            })
-            .text(function(d) {
-                return d
-            })
-            .attr("text-anchor", "left")
-            .attr('font-size', 12)
-            .attr('font-weight', 'bold')
-            .style("alignment-baseline", "middle")
-
-        svgScatter.append("text")
-            .attr("class", "x label")
-            .attr("text-anchor", "end")
-            .attr('font-weight', 'bold')
-            .attr("x", width / 2 + 50)
-            .attr("y", height - 40)
-            .text("Lot Area (sq ft)");
-
-        svgScatter.append("text")
-            .attr("class", "y label")
-            .attr("text-anchor", "end")
-            .attr('font-weight', 'bold')
-            .attr("y", 10)
-            .attr("x", (-height / 2) + 50)
-            .attr("dy", "1em")
-            .attr("transform", "rotate(-90)")
-            .text("Sale Price ($)");
-
-        y_slope = 80
-        x_slope = 550
-
-
-        svgScatter.append("text")
-            .attr("class", "reg-label")
-            .attr("text-anchor", "end")
-            .attr("y", y_slope)
-            .attr("x", x_slope)
-            .attr("dy", "1em")
-            .text(function(d) {
-                return "Slope : " + lg.slope.toFixed(2)
-            });
-
-        svgScatter.append("text")
-            .attr("class", "reg-label")
-            .attr("text-anchor", "end")
-            .attr("y", y_slope + 20)
-            .attr("x", x_slope + 10)
-            .attr("dy", "1em")
-            .text(function(d) {
-                return "Intercept : " + parseInt(lg.intercept)
-            });
-        ///////// end label ////////////
-
-        // select neighbor functions
-        d3.select("#selectNeighborScatter").on("change", function(d) {
-            var selectedOption = d3.select(this).property("value")
-            updateScatter(selectedOption)
         })
 
-        // update scatter plot function
-        function updateScatter(selectedGroup) {
-            var dataFilter = data.map(function(d) {
+        garage_dataFilter = garage_dataFilter.filter(function(x) {
+            return x !== undefined;
+        });
 
-                if (d.Neighborhood === selectedGroup)
-                    return {
-                        LotArea: d.LotArea,
-                        SalePrice: d.SalePrice,
-                        Neighborhood: d.Neighborhood
-                    }
+        var garage_of_neigh = d3.map(garage_dataFilter, function(d) {
+            return d.GarageType;
+        }).keys();
 
-                if (selectedGroup === "all")
-                    return d;
+        var garage_neigh_data = new Array();
 
-            })
-
-            svgScatter.selectAll("line.regression").remove(); //check name at element browser
-            svgScatter.selectAll("circle").remove();
-            svgScatter.selectAll("g.axis.x-axis").remove();
-            svgScatter.selectAll("g.axis.y-axis").remove();
-
-            dataFilter = dataFilter.filter(function(x) {
-                return x !== undefined;
-            });
-
-
-            // new axis and scale
-            priceMin = d3.min(dataFilter, function(d) {
-                return d.SalePrice;
-            });
-            priceMax = d3.max(dataFilter, function(d) {
-                return d.SalePrice;
-            });
-
-            areaMin = d3.min(dataFilter, function(d) {
-                return d.LotArea;
-            });
-            areaMax = d3.max(dataFilter, function(d) {
-                return d.LotArea;
-            });
-
-            areaScale = d3.scaleLinear()
-                .domain([areaMin - 2000, areaMax + 1000])
-                .range([padding, width - padding]);
-
-            priceScale = d3.scaleLinear()
-                .domain([priceMin - 6000, priceMax + 1000])
-                .range([height - padding, padding]);
-
-            // Draw the axis
-            xAxis = d3.axisBottom()
-                .scale(areaScale)
-
-            yAxis = d3.axisLeft()
-                .scale(priceScale)
-
-            svgScatter.append('g')
-                .attr('class', 'axis x-axis')
-                .attr("transform", "translate(0," + (height - padding) + ")")
-                .call(xAxis)
-
-            svgScatter.append('g')
-                .attr('class', 'axis y-axis')
-                .attr("transform", "translate(" + padding + ",0)")
-                .call(yAxis);
-
-
-            //draw circle
-            svgScatter.selectAll('circle')
-                .data(dataFilter)
-                .enter()
-                .append('circle')
-                .transition()
-                .duration(500)
-                .attr('cx', function(d) {
-                    return areaScale(d.LotArea);
-                })
-                .attr('cy', function(d) {
-                    return priceScale(d.SalePrice)
-                })
-                .attr('r', 3)
-                .attr('fill', function(d) {
-                    return colorPalette(d.Neighborhood);
-                })
-                .attr('opacity', 0.8);
-            // cannot mouseover - err unknown type: mouseover
-
-
-
-            var lg = calcLinear(dataFilter, "LotArea", "SalePrice", d3.min(dataFilter, function(d) {
-                    return d.LotArea
-                }),
-                d3.max(dataFilter, function(d) {
-                    return d.LotArea
-                }));
-
-            path = svgScatter.append("line")
-                .attr("class", "regression")
-                .attr("x1", areaScale(lg.ptA.x))
-                .attr("y1", priceScale(lg.ptA.y))
-                .attr("x2", areaScale(lg.ptB.x))
-                .attr("y2", priceScale(lg.ptB.y));
-
-            var totalLength = path.node().getTotalLength();
-
-            svgScatter.selectAll("text.reg-label").remove()
-            path.attr("stroke-dasharray", totalLength + " " + totalLength)
-                .attr("stroke-dashoffset", totalLength)
-                .transition()
-                .duration(3000)
-                .attr("stroke-dashoffset", 0);
-
-            svgScatter.append("text")
-                .attr("class", "reg-label")
-                .attr("text-anchor", "end")
-                .attr("y", y_slope)
-                .attr("x", x_slope)
-                .attr("dy", "1em")
-                .text(function(d) {
-                    return "Slope : " + lg.slope.toFixed(2)
-                });
-
-            svgScatter.append("text")
-                .attr("class", "reg-label")
-                .attr("text-anchor", "end")
-                .attr("y", y_slope + 20)
-                .attr("x", x_slope + 10)
-                .attr("dy", "1em")
-                .text(function(d) {
-                    return "Intercept : " + parseInt(lg.intercept)
-                });
-        }
-
-        // regression functions
-        function calcLinear(data, x, y, minX, maxX) {
-
-            var n = data.length;
-            var pts = [];
-            data.forEach(function(d, i) {
-                var obj = {};
-                obj.x = d[x];
-                obj.y = d[y];
-                obj.mult = obj.x * obj.y;
-                pts.push(obj);
-            });
-
-            var sum = 0;
-            var xSum = 0;
-            var ySum = 0;
-            var sumSq = 0;
-            pts.forEach(function(pt) {
-                sum = sum + pt.mult;
-                xSum = xSum + pt.x;
-                ySum = ySum + pt.y;
-                sumSq = sumSq + (pt.x * pt.x);
-            });
-            var a = sum * n;
-            var b = xSum * ySum;
-            var c = sumSq * n;
-            var d = xSum * xSum;
-
-            var m = (a - b) / (c - d);
-
-            var e = ySum;
-            var f = m * xSum;
-            var b = (e - f) / n;
-
-            return {
-                ptA: {
-                    x: minX,
-                    y: m * minX + b
-                },
-                ptB: {
-                    x: maxX,
-                    y: m * maxX + b
-                },
-                intercept: b,
-                slope: m,
+        garage_of_neigh.forEach(garage => {
+            count = 0;
+            for (i = 0; i < garage_dataFilter.length; i++) {
+                if (garage_dataFilter[i].GarageType === garage)
+                    count += 1
             }
+
+            var garage_obj = {
+                GarageType: garage,
+                GarageCount: count,
+            }
+
+            garage_neigh_data.push(garage_obj)
+        });
+
+        garage_neigh_data = {
+            "children": garage_neigh_data
         }
-    });
+
+        // heating neighborhood data
+        var heat_dataFilter = data.map(function(d) {
+            if (d.Neighborhood === selectedGroup)
+                return {
+                    Neighborhood: d.Neighborhood,
+                    HeatingType: d.HeatingType
+                }
+            if (selectedGroup === "all")
+                return d;
+        })
+
+        heat_dataFilter = heat_dataFilter.filter(function(x) {
+            return x !== undefined;
+        });
+
+        var heat_of_neigh = d3.map(heat_dataFilter, function(d) {
+            return d.HeatingType;
+        }).keys();
+
+        var heat_neigh_data = new Array();
+
+        heat_of_neigh.forEach(heating => {
+            count = 0;
+            for (i = 0; i < heat_dataFilter.length; i++) {
+                if (heat_dataFilter[i].HeatingType === heating)
+                    count += 1
+            }
+
+            var heat_obj = {
+                HeatingType: heating,
+                HeatingCount: count
+            }
+
+            heat_neigh_data.push(heat_obj)
+        });
+
+        heat_neigh_data = {
+            "children": heat_neigh_data
+        }
+
+        d3.selectAll('g.node').remove();
+        d3.selectAll('svg.bubble').remove();
+
+        // garage Bubble
+        var bubbleGarage = d3.pack(garage_neigh_data)
+            .size([diameter, diameter])
+            .padding(1.5);
+
+        var svgBubbleGarage = d3.select("#viz-bubble-garage")
+            .append("svg")
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .attr("class", "bubble");
+
+        var nodesGarage = d3.hierarchy(garage_neigh_data)
+            .sum(function(d) {
+                return d.GarageCount;
+            });
+
+        var nodeGarage = svgBubbleGarage.selectAll(".node")
+            .data(bubbleGarage(nodesGarage).descendants())
+            .enter()
+            .filter(function(d) {
+                return !d.children
+            })
+            .append("g")
+            .attr("class", "node")
+            .attr("opacity", 1)
+            .attr("font-weight", "bold")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+            .on("mouseover", mouseoverBubble)
+            .on("mouseout", mouseoutBubble);
+
+        nodeGarage.append("circle")
+            .attr("class", "bubble")
+            .transition()
+            .duration(600)
+            .attr("r", function(d) {
+                // console.log(d.r)
+                return d.r;
+            })
+            .style("fill", function(d, i) {
+                return colorBubble(i);
+            });
+
+        svgBubbleGarage.append("rect")
+            .attr("fill", 'white')
+            .attr("height", 36)
+            .attr("width", 200)
+            .attr("x", 20)
+            .attr("y", 10)
+            .attr("rx", 20)
+            .attr("ry", 20)
+            .attr("opacity", 0.85)
+
+        svgBubbleGarage.append("text")
+            .attr("dy", ".2em")
+            .style("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 28)
+            .attr("font-weight", "bold")
+            .attr("transform", "translate(" + 120 + ", " + 30 + ")")
+            .attr("fill", "black")
+            .text('Garage Type');
+
+        nodeGarage.append("text")
+            .attr("dy", ".2em")
+            .style("text-anchor", "middle")
+            .attr("font-weight", "bold")
+            .text(function(d) {
+                return d.data.GarageType;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("fill", "black");
+
+        nodeGarage.append("text")
+            .attr("dy", "1.3em")
+            .attr("font-weight", "bold")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.GarageCount;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("fill", "black");
+
+
+        // heating Bubble
+        var bubbleHeat = d3.pack(heat_neigh_data)
+            .size([diameter, diameter])
+            .padding(1.5);
+
+        var svgBubbleHeat = d3.select("#viz-bubble-heat")
+            .append("svg")
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .attr("class", "bubble");
+
+        var nodesHeat = d3.hierarchy(heat_neigh_data)
+            .sum(function(d) {
+                return d.HeatingCount;
+            });
+
+        var nodeHeat = svgBubbleHeat.selectAll(".node")
+            .data(bubbleHeat(nodesHeat).descendants())
+            .enter()
+            .filter(function(d) {
+                return !d.children
+            })
+            .append("g")
+            .attr("class", "node")
+            .attr("opacity", 1)
+            .attr("font-weight", "bold")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+            .on("mouseover", mouseoverBubble)
+            .on("mouseout", mouseoutBubble);
+
+        nodeHeat.append("circle")
+            .attr("class", "bubble")
+            .transition()
+            .duration(600)
+            .attr("r", function(d) {
+                // console.log(d.r)
+                return d.r;
+            })
+            .style("fill", function(d, i) {
+                return colorBubble(i);
+            });
+
+        svgBubbleHeat.append("rect")
+            .attr("fill", 'white')
+            .attr("height", 36)
+            .attr("width", 200)
+            .attr("x", 20)
+            .attr("y", 10)
+            .attr("rx", 20)
+            .attr("ry", 20)
+            .attr("opacity", 0.85)
+
+        svgBubbleHeat.append("text")
+            .attr("dy", ".2em")
+            .style("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 28)
+            .attr("font-weight", "bold")
+            .attr("transform", "translate(" + 120 + ", " + 30 + ")")
+            .attr("fill", "black")
+            .text('Heating Type');
+
+        nodeHeat.append("text")
+            .attr("dy", ".2em")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.HeatingType;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("fill", "black");
+
+        nodeHeat.append("text")
+            .attr("dy", "1.3em")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.HeatingCount;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("fill", "black");
+
+        // garage QUALITY neighborhood data
+        var garageQC_dataFilter = data.map(function(d) {
+            if (d.Neighborhood === selectedGroup)
+                return {
+                    Neighborhood: d.Neighborhood,
+                    GarageQC: d.GarageQC
+                }
+            if (selectedGroup === "all")
+                return d;
+        })
+
+        garageQC_dataFilter = garageQC_dataFilter.filter(function(x) {
+            return x !== undefined;
+        });
+
+        var garageQC_of_neigh = d3.map(garageQC_dataFilter, function(d) {
+            return d.GarageQC;
+        }).keys();
+
+        var garageQC_neigh_data = new Array();
+
+        garageQC_of_neigh.forEach(garageQC => {
+            count = 0;
+            for (i = 0; i < garageQC_dataFilter.length; i++) {
+                if (garageQC_dataFilter[i].GarageQC === garageQC)
+                    count += 1
+            }
+
+            var garage_obj = {
+                GarageQC: garageQC,
+                GarageQCCount: count,
+            }
+
+            garageQC_neigh_data.push(garage_obj)
+        });
+
+        // heating neighborhood data
+        var heatQC_dataFilter = data.map(function(d) {
+            if (d.Neighborhood === selectedGroup)
+                return {
+                    Neighborhood: d.Neighborhood,
+                    HeatQC: d.HeatQC
+                }
+            if (selectedGroup === "all")
+                return d;
+        })
+
+        heatQC_dataFilter = heatQC_dataFilter.filter(function(x) {
+            return x !== undefined;
+        });
+
+        var heatQC_of_neigh = d3.map(heatQC_dataFilter, function(d) {
+            return d.HeatQC;
+        }).keys();
+
+        var heatQC_neigh_data = new Array();
+
+        heatQC_of_neigh.forEach(heatQC => {
+            count = 0;
+            for (i = 0; i < heatQC_dataFilter.length; i++) {
+                if (heatQC_dataFilter[i].HeatQC === heatQC)
+                    count += 1
+            }
+
+            var heat_obj = {
+                HeatQC: heatQC,
+                HeatQCCount: count
+            }
+
+            heatQC_neigh_data.push(heat_obj)
+        });
+
+        d3.selectAll('svg.bar').remove();
+
+        // garage - NEIGHBORHOOD
+        // set the ranges
+        var y_garage = d3.scaleBand()
+            .range([height, 0])
+            .padding(0.1);
+
+        var x_garage = d3.scaleLinear()
+            .range([0, width]);
+
+        console.log(garageQC_neigh_data)
+        console.log(heatQC_data)
+
+        var svgGarage = d3.select("#viz-bar-garage")
+            .append("svg")
+            .attr("class", "bar")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        x_garage.domain([0, d3.max(garageQC_neigh_data, function(d) {
+            return d.GarageQCCount;
+        })])
+        y_garage.domain(garageQC_neigh_data.map(function(d) {
+            return d.GarageQC;
+        }));
+
+        svgGarage.selectAll(".bar")
+            .data(garageQC_neigh_data)
+            .enter()
+            .append("rect")
+            .transition()
+            .duration(800)
+            .attr("class", "bar")
+            .style("fill", function(d, i) {
+                return colorBar(i);
+            })
+            .attr("width", function(d) {
+                return x_garage(d.GarageQCCount);
+            })
+            .attr("y", function(d) {
+                return y_garage(d.GarageQC);
+            })
+            .attr("height", y_garage.bandwidth());
+
+        // add the x Axis
+        xAxisGarage = d3.axisBottom(x_garage);
+        xAxisGarage.ticks(3);
+        svgGarage.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxisGarage)
+
+        // add the y Axis
+        yAxisGarage = d3.axisLeft(y_garage);
+        svgGarage.append("g")
+            .call(yAxisGarage)
+            .call(g => g.selectAll(".tick text").attr("font-weight", "bold"))
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll(".tick line").remove());
+
+        svgGarage.selectAll("barLabel")
+            .data(garageQC_neigh_data)
+            .enter()
+            .append("text")
+            .transition()
+            .duration(800)
+            .text(function(d) {
+                return d.GarageQCCount;
+            })
+            .attr("y", function(d, i) {
+                return y_garage(d.GarageQC) + 5 + y_garage.bandwidth() / 2;
+                // return y_garage(d.GarageQCCount) + y_garage.bandwidth() / 2;
+            })
+            .attr("x", function(d) {
+                return x_garage(d.GarageQCCount) + 20;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle");
+
+        svgGarage.append('text')
+            .text('Count')
+            .attr('x', 300)
+            .attr('y', 250)
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle");
+
+        svgGarage.append("text")
+            .text('Garage Quality')
+            .attr('x', 300)
+            .attr('y', 20)
+            .style("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 28)
+            .attr("font-weight", "bold")
+            .attr("fill", "black");
+
+        // set the ranges - HEATING
+        var y_heat = d3.scaleBand()
+            .range([height, 0])
+            .padding(0.1);
+
+        var x_heat = d3.scaleLinear()
+            .range([0, width]);
+
+        var svgHeat = d3.select("#viz-bar-heat")
+            .append("svg")
+            .attr("class", "bar")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        x_heat.domain([0, d3.max(heatQC_neigh_data, function(d) {
+            return d.HeatQCCount;
+        })])
+        y_heat.domain(heatQC_neigh_data.map(function(d) {
+            return d.HeatQC;
+        }));
+
+        svgHeat.selectAll(".bar")
+            .data(heatQC_neigh_data)
+            .enter()
+            .append("rect")
+            .transition()
+            .duration(800)
+            .attr("class", "bar")
+            .style("fill", function(d, i) {
+                return colorBar(i);
+            })
+            .attr("width", function(d) {
+                return x_heat(d.HeatQCCount);
+            })
+            .attr("y", function(d) {
+                return y_heat(d.HeatQC);
+            })
+            .attr("height", y_heat.bandwidth());
+
+        // add the x Axis
+        xAxisHeat = d3.axisBottom(x_garage);
+        xAxisHeat.ticks(3);
+        svgHeat.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxisHeat)
+
+        // add the y Axis
+        yAxisHeat = d3.axisLeft(y_garage);
+        svgHeat.append("g")
+            .call(yAxisHeat)
+            .call(g => g.selectAll(".tick text").attr("font-weight", "bold"))
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll(".tick line").remove());
+
+        svgHeat.selectAll("barLabel")
+            .data(heatQC_neigh_data)
+            .enter()
+            .append("text")
+            .transition()
+            .duration(800)
+            .text(function(d) {
+                return d.HeatQCCount;
+            })
+            .attr("y", function(d, i) {
+                return y_heat(d.HeatQC) + 5 + y_heat.bandwidth() / 2;
+                // return y_garage(d.GarageQCCount) + y_garage.bandwidth() / 2;
+            })
+            .attr("x", function(d) {
+                return x_heat(d.HeatQCCount) + 20;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle");
+
+        svgHeat.append('text')
+            .text('Count')
+            .attr('x', 300)
+            .attr('y', 250)
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle");
+
+        svgHeat.append("text")
+            .text('Heat Quality')
+            .attr('x', 300)
+            .attr('y', 20)
+            .style("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 28)
+            .attr("font-weight", "bold")
+            .attr("fill", "black");
+
+    }
+
+    function mouseoverBubble() {
+        d3.select(this)
+            .transition()
+            .duration(300)
+            .attr("font-size", 28)
+            .attr("opacity", 0.8);
+
+    }
+
+    function mouseoutBubble() {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("font-size", 16)
+            .attr("opacity", 1);
+    }
+
 });
