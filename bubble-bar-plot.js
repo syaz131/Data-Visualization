@@ -9,7 +9,7 @@ rowConverter = function(d) {
     }
 }
 
-d3.csv("train.csv", rowConverter).then(function(data) {
+d3.csv("house price.csv", rowConverter).then(function(data) {
 
 
     var neighborhood_list = d3.map(data, function(d) {

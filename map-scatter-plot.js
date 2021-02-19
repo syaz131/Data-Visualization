@@ -44,7 +44,7 @@ rowConverter = function(d) {
     }
 }
 
-d3.csv("train.csv", rowConverter).then(function(data) {
+d3.csv("house price.csv", rowConverter).then(function(data) {
     d3.json("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/us-states.json").then(function(json) {
 
         neighborhood_list = d3.map(data, function(d) {
