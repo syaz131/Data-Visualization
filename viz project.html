@@ -61,9 +61,65 @@
 
     <div>add comment here</div>
 
+    <div id="viz-bar-house2">
+        <h2>Bar plot - House Age vs House Sold</h2>
+        <div>add comment here</div>
+
+        <div class="dropdown">
+            <button onclick="myFunction()" class="dropbtn">Neighborhood</button>
+            <div id="myDropdown" class="dropdown-content">
+                <a onclick="updateBar(0,passedData)">College Creek</a>
+                <a onclick="updateBar(1,passedData)">Veenker</a>
+                <a onclick="updateBar(2,passedData)">Crawford</a>
+                <a onclick="updateBar(3,passedData)">Northridge</a>
+                <a onclick="updateBar(4,passedData)">Mitchell</a>
+                <a onclick="updateBar(5,passedData)">Somerset</a>
+                <a onclick="updateBar(6,passedData)">Northwest Ames</a>
+                <a onclick="updateBar(7,passedData)">Old Town</a>
+                <a onclick="updateBar(8,passedData)">Brookside</a>
+                <a onclick="updateBar(9,passedData)">Sawyer</a>
+                <a onclick="updateBar(10,passedData)">Northridge Heights</a>
+                <a onclick="updateBar(11,passedData)">North Ames</a>
+                <a onclick="updateBar(12,passedData)">Sawyer West</a>
+                <a onclick="updateBar(13,passedData)">Iowa Rail Road</a>
+                <a onclick="updateBar(14,passedData)">Meadow Village</a>
+                <a onclick="updateBar(15,passedData)">Edwards</a>
+                <a onclick="updateBar(16,passedData)">Timberland</a>
+                <a onclick="updateBar(17,passedData)">Gilbert</a>
+                <a onclick="updateBar(18,passedData)">Stone Brook</a>
+                <a onclick="updateBar(19,passedData)">Clear Creek</a>
+                <a onclick="updateBar(20,passedData)">Northpark Villa</a>
+                <a onclick="updateBar(21,passedData)">Bloomington Heights</a>
+                <a onclick="updateBar(22,passedData)">Briardale</a>
+                <a onclick="updateBar(23,passedData)">Iowa State University</a>
+                <a onclick="updateBar(24,passedData)">Bluestem</a>
+            </div>
+            <p></p>
+        </div>
+        <br/>
+
+        <svg id="viz-bar-house" width="700" height="500"></svg>
+
+    </div>
+
+    <h2>Bar plot - House Sold by Year</h2>
+    <div>add comment here</div>
+
+    <button onclick="updateData(counted2006)">2006</button>
+    <button onclick="updateData(counted2007)">2007</button>
+    <button onclick="updateData(counted2008)">2008</button>
+    <button onclick="updateData(counted2009)">2009</button>
+    <button onclick="updateData(counted2010)">2010</button>
+    <svg id="viz-line-house" width="700" height="500"></svg>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="bubble-bar-plot.js"></script>
     <script src="map-scatter-plot.js"></script>
+
+    <script src="line-house-sold.js"></script>
+    <script src="bar-house-age.js"></script>
+
+    <!-- <svg height="200"></svg> -->
+
 
 </body>

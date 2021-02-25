@@ -39,6 +39,19 @@ body {
     overflow: hidden;
 }
 
+#viz-bar-house2 {
+    float: left;
+    width: 50%;
+    height: 80em;
+    overflow: hidden;
+}
+
+#viz-line-house {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+}
+
 div.tooltip {
     position: absolute;
     text-align: center;
@@ -60,7 +73,6 @@ select {
     width: 200px;
     height: 30px;
     font-size: 14px;
-    ;
 }
 
 .regression {
@@ -79,4 +91,98 @@ circle.bubble:hover {
     stroke-opacity: 1;
     stroke-width: 2pt;
     stroke: gray;
+}
+
+
+/* YON line and bar chart */
+
+.axis--x path {
+    display: none;
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
+}
+
+.circle {
+    fill: steelblue;
+}
+
+.bar {
+    fill: steelblue;
+}
+
+button {
+    background-color: #3498DB;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+}
+
+.button:hover {
+    background-color: #2980B9;
+}
+
+.dropbtn {
+    background-color: #3498DB;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* Dropdown button on hover & focus */
+
+.dropbtn:hover,
+.dropbtn:focus {
+    background-color: #2980B9;
+}
+
+
+/* The container <div> - needed to position the dropdown content */
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+
+/* Dropdown Content (Hidden by Default) */
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+
+/* Links inside the dropdown */
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+
+/* Change color of dropdown links on hover */
+
+.dropdown-content a:hover {
+    background-color: #ddd
+}
+
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+
+.show {
+    display: block;
 }
