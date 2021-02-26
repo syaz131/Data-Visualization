@@ -7,12 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="house-512.ico">
     <link rel="stylesheet" href="main.css">
-    <title>House Price in USA</title>
+    <title>House Of Card</title>
 </head>
 
 <body>
-    <h1>House Price in USA</h1>
-
+    <h2 style="color: white;">House Price in USA</h2>
+    <h1>HOUSE OF CARD: USA HOUSING BUSINESS BY NEIGHBORHOOD</h1>
+    <h2 style="color: white;">House Price in USA</h2>
+    <h2>Lot Area vs House Price in Neighborhood</h2>
     <svg width="0" height="0">
         <defs>
           <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -24,46 +26,58 @@
 
     <div>
         <div id="viz-map">
-            <h2>Map plot</h2>
+            <!-- <h2>Map plot</h2> -->
         </div>
 
         <div id="viz-scatter">
-            <h2>Scatter plot</h2>
+            <!-- <h2>Scatter plot</h2> -->
             <select id="selectNeighborScatter">
             <option value="all">All Neighborhood</option>
         </select>
         </div>
+
+        <div style="color: white;">-</div>
+        <div class="comment3">
+            The size of dots indicates the average of lot area in square feet of neighborhood. The color intensity indicates the average price. The darker the shade the higher the house sale price in the neighborhood. By hovering on the dots, the details of the neighborhood
+            can be obtained.
+        </div>
+        <div class="comment2">
+            The scatter plot help us to see the relationship between Lot Area and Sale Price. With the appearance of regression, the relationship can be translated and understood clearly. The intercept indicates the starting price of houses in a neighborhood. Meanwhile,
+            the slope indicates the rising price per square feet.
+        </div>
     </div>
 
-    <div>add comment here</div>
 
-
-    <h2>Bubble and Bar plot</h2>
+    <h1 style="color: white;">House Price in USA</h1>
+    <h2>Garage Type and Quality in Houses</h2>
     <select id="selectNeighborBubbleBar">
         <option value="all">All Neighborhood</option>
     </select>
-
     <div>
-        <h2>Garage</h2>
         <div id="viz-bubble-garage"></div>
         <div id="viz-bar-garage"></div>
     </div>
 
     <div>
-        <h2>Heating</h2>
+        <h2>Heating Type Built and Quality in Houses</h2>
         <div id="viz-bubble-heat"></div>
         <div id="viz-bar-heat"></div>
     </div>
     <br/>
 
-    <!-- <h2>hi</h2> -->
     <div style="color: white;">-</div>
-
-    <div>add comment here</div>
+    <div class="comment">
+        The bubble plot display the heating type equipped in the houses. The horizontal bar plot display the quality condition of the heating features used. Viewer can filter the visualisation by selecting desired neighbourhoods.
+    </div>
 
     <div id="viz-bar-house2">
-        <h2>Bar plot - House Age vs House Sold</h2>
-        <div>add comment here</div>
+        <h1 style="color: white;">House Price in USA</h1>
+        <h2>House Age When Sold</h2>
+        <div class="comment1">
+            This graph displays the amount of houses sold, grouped by the house age when the houses are sold, for every neighbourhood.The graph can be filtered for each neighbourhood using the ‘Neighborhood’ button above the graph which will show a dropdown of available
+            neighbourhoods.
+        </div>
+        <div style="color: white;">add comment here</div>
 
         <div class="dropdown">
             <button onclick="myFunction()" class="dropbtn">Neighborhood</button>
@@ -102,15 +116,39 @@
 
     </div>
 
-    <h2>Bar plot - House Sold by Year</h2>
-    <div>add comment here</div>
+    <h1 style="color: white;">House Price in USA</h1>
+    <h2>Amount of House Sold by Year</h2>
+    <div style="color: white;">-</div>
+    <div class="comment2">
+        This graph displays the amount of houses sold for each month for 5 years which is from 2006 until 2010. The graphs are divided for each year, which each year can be filtered using the 5 buttons above the graph to change between each year.
+    </div>
+    <div style="color: white;">-</div>
 
     <button onclick="updateData(counted2006)">2006</button>
     <button onclick="updateData(counted2007)">2007</button>
     <button onclick="updateData(counted2008)">2008</button>
     <button onclick="updateData(counted2009)">2009</button>
     <button onclick="updateData(counted2010)">2010</button>
+    <div style="color: white;">-</div>
     <svg id="viz-line-house" width="700" height="500"></svg>
+
+
+
+    <div class="credit">
+        <svg height="50"></svg>
+        <h3>Prepared by</h3>
+        <ol>
+            <li>
+                AMIRUL RASYIDI
+            </li>
+            <li>
+                MUHAMMAD SYAZWAN
+            </li>
+            <li>
+                MOHAMMAD AMIRUL IKHMAL
+            </li>
+        </ol>
+    </div>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="bubble-bar-plot.js"></script>
@@ -118,8 +156,6 @@
 
     <script src="line-house-sold.js"></script>
     <script src="bar-house-age.js"></script>
-
-    <!-- <svg height="200"></svg> -->
 
 
 </body>

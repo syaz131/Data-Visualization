@@ -988,14 +988,14 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
             .attr("height", y_heat.bandwidth());
 
         // add the x Axis
-        xAxisHeat = d3.axisBottom(x_garage);
+        xAxisHeat = d3.axisBottom(x_heat);
         xAxisHeat.ticks(3);
         svgHeat.append("g")
             .attr("transform", "translate(0," + height + ")")
             .call(xAxisHeat)
 
         // add the y Axis
-        yAxisHeat = d3.axisLeft(y_garage);
+        yAxisHeat = d3.axisLeft(y_heat);
         svgHeat.append("g")
             .call(yAxisHeat)
             .call(g => g.selectAll(".tick text").attr("font-weight", "bold"))

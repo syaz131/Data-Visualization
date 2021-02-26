@@ -426,7 +426,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
         ///////// start label ////////////
         var size = 10
-        var xLabels = 600
+        var xLabels = 550
         var yLabels = 40
 
         svgScatter.selectAll("mydots")
@@ -481,8 +481,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
             .attr("transform", "rotate(-90)")
             .text("Sale Price ($)");
 
-        y_slope = 80
-        x_slope = 550
+        y_slope = 60
+        x_slope = 500
 
 
         svgScatter.append("text")
