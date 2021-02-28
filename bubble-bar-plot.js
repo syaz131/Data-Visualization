@@ -83,7 +83,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
         "children": heating_data
     }
 
-    var diameter = 300;
+    var diameter = 450;
     var colorBar = d3.scaleOrdinal(d3.schemeSet2);
     var colorBubble = d3.scaleOrdinal(d3.schemeAccent);
 
@@ -95,7 +95,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
     var svgBubbleGarage = d3.select("#viz-bubble-garage")
         .append("svg")
-        .attr("width", diameter)
+        .attr("width", diameter + 150)
         .attr("height", diameter)
         .attr("class", "bubble");
 
@@ -128,7 +128,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
     var svgBubbleHeat = d3.select("#viz-bubble-heat")
         .append("svg")
-        .attr("width", diameter)
+        .attr("width", diameter + 150)
         .attr("height", diameter)
         .attr("class", "bubble");
 
@@ -298,8 +298,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
             bottom: 60,
             left: 60
         },
-        width = 700 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+        width = 750 - margin.left - margin.right,
+        height = 450 - margin.top - margin.bottom;
 
     // set the ranges
     var y_garage = d3.scaleBand()
@@ -380,8 +380,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
     svgGarage.append('text')
         .text('Count')
-        .attr('x', 300)
-        .attr('y', 250)
+        .attr('x', 350)
+        .attr('y', 400)
         .attr("font-size", "16px")
         .attr("font-weight", "bold")
         .attr("fill", "black")
@@ -484,8 +484,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
     svgHeat.append('text')
         .text('Count')
-        .attr('x', 300)
-        .attr('y', 250)
+        .attr('x', 350)
+        .attr('y', 400)
         .attr("font-size", "16px")
         .attr("font-weight", "bold")
         .attr("fill", "black")
@@ -609,7 +609,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
         var svgBubbleGarage = d3.select("#viz-bubble-garage")
             .append("svg")
-            .attr("width", diameter)
+            .attr("width", diameter + 150)
             .attr("height", diameter)
             .attr("class", "bubble");
 
@@ -694,7 +694,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
         var svgBubbleHeat = d3.select("#viz-bubble-heat")
             .append("svg")
-            .attr("width", diameter)
+            .attr("width", diameter + 150)
             .attr("height", diameter)
             .attr("class", "bubble");
 
@@ -928,8 +928,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
         svgGarage.append('text')
             .text('Count')
-            .attr('x', 300)
-            .attr('y', 250)
+            .attr('x', 350)
+            .attr('y', 400)
             .attr("font-size", "16px")
             .attr("font-weight", "bold")
             .attr("fill", "black")
@@ -1026,8 +1026,8 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
 
         svgHeat.append('text')
             .text('Count')
-            .attr('x', 300)
-            .attr('y', 250)
+            .attr('x', 350)
+            .attr('y', 400)
             .attr("font-size", "16px")
             .attr("font-weight", "bold")
             .attr("fill", "black")
