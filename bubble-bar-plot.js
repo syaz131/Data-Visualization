@@ -502,7 +502,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
         .attr("opacity", 0.85)
 
     svgHeat.append("text")
-        .text('Heat Quality')
+        .text('Heating Quality')
         .attr('x', 300)
         .attr('y', 20)
         .style("text-anchor", "middle")
@@ -1034,7 +1034,7 @@ d3.csv("house price.csv", rowConverter).then(function(data) {
             .attr("text-anchor", "middle");
 
         svgHeat.append("text")
-            .text('Heat Quality')
+            .text('Heating Quality')
             .attr('x', 300)
             .attr('y', 20)
             .style("text-anchor", "middle")
